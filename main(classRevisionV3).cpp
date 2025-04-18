@@ -12,12 +12,16 @@ char yesOrNoEntry(std::string);
 class Character;
 
 // function prototypes
-int addCharacter(Character arr[],const int, int);
-void viewParty(std::vector<Character>, int);
-void editHP(Character arr[], int);
+int addCharacter(Character arr[10],const int, int);
+void viewCharMenu(Character arr[10], int, std::vector<Character>, std::vector<Character>);
+void viewCharacters(Character arr[10], int, std::string);
+void viewCharVect(std::vector<Character>, std::string);
+void viewParty(Character arr[10], int, std::string);
+void viewEnemies(Character arr[10], int, std::string);
+void editHP(Character arr[10], int);
 int rollDice(int, int, int);
 void rollDiceMenu();
-void initiativeRoll(Character arr[], int, std::vector<Character> &);
+void initiativeRoll(Character arr[10], int, std::vector<Character> &);
 void setTurnOrder(std::vector<Character> &);
 void displayTurnOrder(std::vector<Character>);
 void swapInt(int &, int &);
@@ -202,8 +206,8 @@ int main() {
     int choice;
     while (running) {
         std::cout << "\n--- D&D DM Tracker ---\n";
-        std::cout << "1. Add Character\n2. View Party\n3. Edit HP\n4. Roll Dice\n5. Initiative Roll\n"
-                  << "6. Exit\n";
+        std::cout << "1. Add Character\n2. View Character Menu\n3. Edit HP\n4. Roll Dice\n5. Initiative Roll\n"
+                  << "6. Exit\n\n";
         choice = integerEntry("menu option");
 
         if (choice == 1) {
@@ -229,7 +233,8 @@ int main() {
                 
             }
         } else if (choice == 2) {
-            viewParty(party, numPartyMem);
+            // Pass the Character array and vectors to the Character Menu function
+            viewCharMenu(characters, numCharacters, party, enemies);
         } else if (choice == 3) {
             editHP(characters, numCharacters);
         } else if (choice == 4) {
@@ -249,7 +254,7 @@ int main() {
     return 0;
 }
 // Function to add a new character
-int addCharacter(Character characters[], int const MAX_CHARACTERS, int numCharacters) {
+int addCharacter(Character characters[10], int const MAX_CHARACTERS, int numCharacters) {
     if (numCharacters < MAX_CHARACTERS) {
         Character c;
         c.createCharacter();
@@ -262,19 +267,101 @@ int addCharacter(Character characters[], int const MAX_CHARACTERS, int numCharac
     return numCharacters;
 }
 
-// Function to view party characters
-void viewParty(std::vector<Character> party, int numPartyMem) {
-    std::cout << "\n--- Party Status ---\n";
-    for (int i = 0; i < numPartyMem; i++) {
+// This function displays a submenu that asks which Character group you would like
+// to view.
+void viewCharMenu(Character characters[10], int numCharacters, std::vector<Character> party, std::vector<Character> enemies)
+{
+    // Create a boolean variable for loop control
+    bool inMenu = true;
+
+    //Create a variable for the user selection
+    int choice;
+
+    // enter loop
+    while (inMenu) {
+        // display menu options
+        std::cout << "\n--- View Character Menu ---\n";
+        std::cout << "1. View all Characters\n2. View Party Members\n3. View Enemies\n4. Back\n\n";
+        // Get the users selection
+        choice = integerEntry("menu choice");
+
+        // If else statement menu block
+        if (choice == 1) {
+            viewCharacters(characters, numCharacters, "--- Character Status ---");
+        }
+        else if (choice == 2) {
+            viewParty(characters, numCharacters, "--- Party Status ---");
+        }
+        else if (choice == 3) {
+            viewEnemies(characters, numCharacters, "--- Enemy Status ---");
+        }
+        else if (choice == 4) {
+            std::cout << "Returning to previous menu...\n";
+            inMenu = false;
+        }
+        else {
+            std::cout << "Invalid option";
+        }
+    }
+}
+// Function to view the characters in an array
+void viewCharacters(Character charArray[10], int numCharacters, std::string header) {
+    // display header received during function call
+    std::cout << header << std::endl;
+    for (int i = 0; i < numCharacters; i++) {
         // Display character stats by calling the displayStats()
         // function for each character in the array.
-        party[i].displayStats();
+        charArray[i].displayStats();
     }
     std::cout << "---------------------\n";
 }
 
+void viewParty(Character charArray[10], int numCharacters, std::string header) {
+    // display header received during function call
+    std::cout << header << std::endl;
+    for (int i = 0; i < numCharacters; i++) {
+        // Display character stats by calling the displayStats()
+        // function for each character in the array.
+        if (charArray[i].getPartyFlag() == 'Y') {
+            // If the get party flag function returns 'Y' for yes
+            charArray[i].displayStats();
+        }
+    }
+    std::cout << "---------------------\n";
+}
+
+void viewEnemies(Character charArray[10], int numCharacters, std::string header) {
+    // display header received during function call
+    std::cout << header << std::endl;
+    for (int i = 0; i < numCharacters; i++) {
+        // Display character stats by calling the displayStats()
+        // function for each character in the array.
+        if (charArray[i].getEnemyFlag() == 'Y') {
+            // If the get enemy flag function returns 'Y' for yes
+            charArray[i].displayStats();
+        }
+    }
+    std::cout << "---------------------\n";
+}
+
+// Function to view the characters in a vector
+void viewCharVect(std::vector<Character> charVect, std::string header) {
+    // get the size of the vector
+    int vectSize = charVect.size();
+    // display header recieved during function call
+    std::cout << header << std::endl;
+    for (int i = 0; i < vectSize; i++) {
+        // Display character stats by calling the displayStats()
+        // function for each character in the array.
+        charVect[i].displayStats();
+    }
+    std::cout << "---------------------\n";
+}
+
+
+
 // Function to edit HP of a character
-void editHP(Character characters[], int numCharacters) {
+void editHP(Character characters[10], int numCharacters) {
     std::string name;
     int change;
     std::cout << "Enter character name to modify HP: ";
@@ -313,8 +400,9 @@ void rollDiceMenu() {
     int result = rollDice(numDice, diceSides, mod); // calls rollDice function
     std::cout << "You rolled: " << result << "\n";
 }
+
 // Function that calls the public function rollinit() for all characters in Characters
-void initiativeRoll(Character characters[], int numCharacters, std::vector<Character>&turnOrder)
+void initiativeRoll(Character characters[10], int numCharacters, std::vector<Character>&turnOrder)
 {
     // Prepare the turnOrder vector for a fresh initiative roll
     turnOrder.clear();
