@@ -15,7 +15,6 @@ class Character;
 int addCharacter(Character arr[10],const int, int);
 void viewCharMenu(Character arr[10], int);
 void viewCharacters(Character arr[10], int, std::string);
-void viewCharVect(std::vector<Character>, std::string);     // This is not used at the momement, but may be used later.
 void viewParty(Character arr[10], int, std::string);
 void viewEnemies(Character arr[10], int, std::string);
 void editHP(Character arr[10], int);
@@ -112,16 +111,18 @@ void Character::setFlags()
 {
     // Determine if the character is an enemy
     char enemyStatus = yesOrNoEntry("Is this character an enemy?\n");
-    if (enemyStatus == 'Y') {
+    if (enemyStatus == 'Y') {   //yesOrNoEntry returns 'Y' if the user entered 'y'
         std::cout << name << " has been set as an enemy.\n";
     }
     isEnemy = enemyStatus;
     // Determine if the character is a party member
-    char partyStatus = yesOrNoEntry("Is this character a party member?\n");
-    if (partyStatus == 'Y') {
-        std::cout << name << " has been set as a party member.\n";
-    }
+    if (enemyStatus =='N') {
+        char partyStatus = yesOrNoEntry("Is this character a party member?\n");
+        if (partyStatus == 'Y') {   //yesOrNoEntry returns 'N' if the user entered 'n'
+            std::cout << name << " has been set as a party member.\n";
+        }
     isPartyMem = partyStatus;
+    }
 }
 
 void Character::displayStats()
@@ -198,7 +199,6 @@ int main() {
         choice = integerEntry("menu option");
 
         if (choice == 1) {
-            // with the additional character arrays I needed to add some extra steps
             // create a variable to hold the current number of characters.
             int currentCharacters = numCharacters;
             // This looks odd, but now that numCharacters is local, we need a way of incrementing it.
@@ -315,22 +315,6 @@ void viewEnemies(Character charArray[10], int numCharacters, std::string header)
     std::cout << "---------------------\n";
 }
 
-// Function to view the characters in a vector
-void viewCharVect(std::vector<Character> charVect, std::string header) {
-    // get the size of the vector
-    int vectSize = charVect.size();
-    // display header recieved during function call
-    std::cout << header << std::endl;
-    for (int i = 0; i < vectSize; i++) {
-        // Display character stats by calling the displayStats()
-        // function for each character in the array.
-        charVect[i].displayStats();
-    }
-    std::cout << "---------------------\n";
-}
-
-
-
 // Function to edit HP of a character
 void editHP(Character characters[10], int numCharacters) {
     std::string name;
@@ -360,14 +344,15 @@ int rollDice(int numDice, int diceSides, int modifier = 0) {
 
 // Function to handle dice rolls
 void rollDiceMenu() {
+    // I integrated the input validation funcitions to prevent input Errors,
+    // but it might be good to have additional range parameters...
     int numDice, diceSides, mod;
-    std::cout << "Enter number of dice: ";
-    std::cin >> numDice;
-    std::cout << "Enter dice sides (e.g., 20 for d20): ";
-    std::cin >> diceSides;
-    std::cout << "Enter modifier (can be 0): ";
-    std::cin >> mod;
-
+    // Get a positive integer for the number of dice from the input validation function
+    numDice = positiveIntegerEntry("the number of dice");
+    // Get a positive integer for the number of sides
+    diceSides = positiveIntegerEntry("the dice sides (e.g., 20 for d20)");
+    // Get an integer for the role modifier
+    mod = integerEntry("role modifier (can be 0)");
     int result = rollDice(numDice, diceSides, mod); // calls rollDice function
     std::cout << "You rolled: " << result << "\n";
 }
