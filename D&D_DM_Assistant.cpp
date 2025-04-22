@@ -17,6 +17,7 @@ void viewCharMenu(Character arr[10], int);
 void viewCharacters(Character arr[10], int, std::string);
 void viewParty(Character arr[10], int, std::string);
 void viewEnemies(Character arr[10], int, std::string);
+void editCharMenu(Character arr[10], int);
 void editHP(Character arr[10], int);
 int rollDice(int, int, int);
 void rollDiceMenu();
@@ -40,13 +41,17 @@ class Character
         char isPartyMem;            // because of possible ambiguous character cases.
     public:
         void createCharacter();     // Sets the attributes for a Character type object, should be called on creation
-        void changeHp(int);         // This has been structured to work with the existing editHp function
-        void modifyName();
-        void modifyAc();
         void rollInit();            // Sets the initiative value to a number returned by the rollDice() function    
-        void setFlags();            // Allows the Characters party/enemy status to be edited
         void displayStats();
+        void editHp(int);         // This has been structured to work with the existing editHp function
         void applyDamage(int);      // Accepts an integer as a damage argument, applied damage = Damage - AC.
+        // The following functions are for editing characters
+        void editCharacter();
+        void setName();
+        void setHp();
+        void setAc();
+        void setInitMod();
+        void setFlags();            // Allows the Characters party/enemy status to be edited
         // The following get functions provide access to the private attributes
         std::string getName();
         int getHp();
@@ -69,42 +74,122 @@ void Character::createCharacter()
     // Determine the characters Enemy and Party status
     setFlags();
 }
-
-// This function will simply take a change and apply it
-// to the characters hp
-void Character::changeHp(int change)
+// This function Rolls a value for the initiative attribute
+void Character::rollInit()
+{
+    // This turned out much simpler than expected,
+    // the rollDice function just needs the relavent values.
+    initiative = rollDice(1, 20, initModifier);
+}
+// This function displays the Character's attributes
+void Character::displayStats()
+{
+std::cout << "------------------------------------------------------------------\n";
+    std::cout << "Name: " << std::left << std::setw(15) << name
+                  << " | HP: " << hp
+                  << " | AC: " << ac
+                  << " | Party Member:" << isPartyMem
+                  << " | Enemy:" << isEnemy << "\n"
+                  << "Init Adjust:" << std::setw(9) << initModifier
+                  << " | Initiative Roll: " << initiative << "\n"
+                  << "------------------------------------------------------------------\n";
+}
+// This function adds a postive value to a character's hp
+void Character::editHp(int change)
 {
     hp += change;
+    // check for negative hp values
+    if (hp < 0) {
+        hp = 0;
+    }
+}
+// This function subtracts a positive value from character hp
+void Character::applyDamage(int damage)
+{
+    // Check for negative values
+    if (damage < 0) {
+        // set applied damage to 0
+        damage = 0;
+    }
+    hp -= damage;
     // This just prevents negative hp numbers.
     // We can remove the if statement if the overkill
     // amount is desired.
     if (hp < 0)
         hp = 0;
 }
+// This function allows the user to edit a character
+void Character::editCharacter()
+{
+    // Create a boolean variable for loop control
+    bool inMenu = true;
+
+    //Create a variable for the user selection
+    int choice;
+
+    // enter loop
+    while (inMenu) {
+        // display current character status
+        displayStats();
+        // display menu options
+        std::cout << "\n--- Edit " << name << " Menu ---\n";
+        std::cout << "1. Change Name\n2. Change Hp\n3. Change Ac\n4. Change Initiative Modifier\n"
+                  << "5. Change Enemy or Party status\n6. Back\n\n";
+        // Get the users selection
+        choice = integerEntry("menu choice");
+
+        // If else statement menu block
+        if (choice == 1) {
+            setName();
+        }
+        else if (choice == 2) {
+            setHp();
+        }
+        else if (choice == 3) {
+            setAc();
+        }
+        else if (choice == 4) {
+            setInitMod();
+        }
+        else if (choice == 5) {
+            setFlags();
+        }
+        else if (choice == 6) {
+            std::cout << "Returning to previous menu...\n";
+            inMenu = false;
+        }
+        else {
+            std::cout << "Invalid option\n";
+        }
+    }
+}
 // This function will allow you to change the character name
-void Character::modifyName()
+void Character::setName()
 {
     // Create a variable for the characters new name.
-    std::string newName;
     std::cout << "Enter a new name for " << name << ": ";
-    std::cin >> newName;
-    name = newName;
+    std::cin >> name;
+    std::cout << "This Character is now " << name << ".\n";
+}
+// This function sets the HP value
+void Character::setHp()
+{
+    // Calls the positiveIntegerEntry function to get an integer from the user
+    hp = positiveIntegerEntry("Character HP");
+    std::cout << name << "'s HP set to " << hp << ".\n";
 }
 // This function simply modifies ac
-void Character::modifyAc() 
+void Character::setAc() 
 {
-    // Create a variable for the characters new ac.
-    int newAc;
-    std::cout << "Enter a new AC value for " << name << ": ";
-    std::cin >> newAc;
-    ac = newAc;
+    // Calls the integerEntry function to get an integer from the user.
+    ac = integerEntry("Character Armor Class");
+    std::cout << name << "'s Armor Class set to " << ac << ".\n";
 }
-// This one will need a little work
-void Character::rollInit()
+// This function sets the Initiative mod
+void Character::setInitMod()
 {
-    // This turned out much simpler than expected,
-    // the rollDice function just needs the relavent values.
-    initiative = rollDice(1, 20, initModifier);
+    initModifier = integerEntry("Initiative Modifier");
+    std::cout << name << "'s Initiative Modifier set to " << initModifier << ".\n";
 }
 // Sets the Party and Enemy flag status
 void Character::setFlags()
@@ -124,30 +209,6 @@ void Character::setFlags()
     isPartyMem = partyStatus;
     }
 }
-
-void Character::displayStats()
-{
-    std::cout << "Name: " << std::left << std::setw(15) << name
-                  << " | HP: " << hp
-                  << " | AC: " << ac
-                  << " | Party Member:" << isPartyMem
-                  << " | Enemy:" << isEnemy << "\n"
-                  << "Init Adjust:" << std::setw(9) << initModifier
-                  << " | Initiative Roll: " << initiative << "\n\n";
-}
-
-// This function subtracts a positive value from character hp
-void Character::applyDamage(int damage)
-{
-    // Check for negative values
-    if (damage < 0) {
-        // set applied damage to 0
-        damage = 0;
-    }
-    hp -= damage;
-}
-
-
 //******This section contains the getfunctions******
 // simply returns the characters name for display purposes
 std::string Character::getName() {
@@ -194,8 +255,8 @@ int main() {
     int choice;
     while (running) {
         std::cout << "\n--- D&D DM Tracker ---\n";
-        std::cout << "1. Add Character\n2. View Character Menu\n3. Edit HP\n4. Roll Dice\n5. Initiative Roll\n"
-                  << "6. Exit\n\n";
+        std::cout << "1. Add Character\n2. View Character Menu\n3. Edit Character Menu\n4. Edit HP\n5. Roll Dice\n"
+                  << "6. Initiative Roll\n7. Exit\n\n";
         choice = integerEntry("menu option");
 
         if (choice == 1) {
@@ -207,14 +268,17 @@ int main() {
             // Pass the Character array and vectors to the Character Menu function
             viewCharMenu(characters, numCharacters);
         } else if (choice == 3) {
-            editHP(characters, numCharacters);
+            // call the editCharacterMenu function to bring up the character menu
+            editCharMenu(characters, numCharacters);
         } else if (choice == 4) {
-            rollDiceMenu();
+            editHP(characters, numCharacters);
         } else if (choice == 5) {
+            rollDiceMenu();
+        } else if (choice == 6) {
             initiativeRoll(characters, numCharacters, turnOrder);
             setTurnOrder(turnOrder);
             displayTurnOrder(turnOrder);
-        } else if (choice == 6) {
+        } else if (choice == 7) {
             // establish exit conditions for loop
             running = false;
         } else {
@@ -271,7 +335,7 @@ void viewCharMenu(Character characters[10], int numCharacters)
             inMenu = false;
         }
         else {
-            std::cout << "Invalid option";
+            std::cout << "Invalid option\n";
         }
     }
 }
@@ -284,7 +348,6 @@ void viewCharacters(Character charArray[10], int numCharacters, std::string head
         // function for each character in the array.
         charArray[i].displayStats();
     }
-    std::cout << "---------------------\n";
 }
 
 void viewParty(Character charArray[10], int numCharacters, std::string header) {
@@ -298,9 +361,8 @@ void viewParty(Character charArray[10], int numCharacters, std::string header) {
             charArray[i].displayStats();
         }
     }
-    std::cout << "---------------------\n";
 }
-
+// This function displays the stats of all characters set as enemies
 void viewEnemies(Character charArray[10], int numCharacters, std::string header) {
     // display header received during function call
     std::cout << header << std::endl;
@@ -312,25 +374,82 @@ void viewEnemies(Character charArray[10], int numCharacters, std::string header)
             charArray[i].displayStats();
         }
     }
-    std::cout << "---------------------\n";
+}
+// This function brings up the menu to edit an existing character
+void editCharMenu(Character characters[10], int numCharacters) {
+    // create a boolean variable for menu status
+    bool inMenu = true;
+    // enter loop
+    while (inMenu) {
+        // Displays a numbered list of all the characters in the characters array
+        for (int index = 0, number = 1; index < numCharacters; index++, number++) {
+            std::cout << number << ". " << characters[index].getName() << "\n";
+        }
+        // Display the exit option
+        std::cout << (numCharacters + 1) << ". Back\n\n";
+        // declare a variable for user input, and get a user response
+
+        int menuChoice = positiveIntegerEntry("character you want to edit");
+
+        // Create and set a variable for the desired character's index position
+        int charChoice = menuChoice -= 1;
+
+        // if statements for calling the editCharacter function
+        if (menuChoice >= 0 && menuChoice < numCharacters) {
+            characters[charChoice].editCharacter();
+        }
+        else if (menuChoice == numCharacters) {
+            // This will be the exit option
+            inMenu = false;
+            std::cout << "Returning to previous menu...\n\n";
+        }
+        else {
+            std::cout << "invalid menu option";
+        }
+    }
 }
 
 // Function to edit HP of a character
 void editHP(Character characters[10], int numCharacters) {
-    std::string name;
-    int change;
-    std::cout << "Enter character name to modify HP: ";
-    std::cin >> name;
-    for (int i = 0; i < numCharacters; i++) {  // Use index-based loop
-        if (characters[i].getName() == name) {
-            std::cout << "Current HP: " << characters[i].getHp() << ".";
-            change = integerEntry("change amount (e.g., -5 or 10)");
-            characters[i].changeHp(change);
-            std::cout << characters[i].getName() << " now has " << characters[i].getHp() << " HP.\n";
-            return;
+    // create a boolean variable for menu status
+    bool inMenu = true;
+    // enter loop
+    while (inMenu) {
+        // Displays a numbered list of all the characters in the characters array
+        for (int index = 0, number = 1; index < numCharacters; index++, number++) {
+            std::cout << number << ". " << characters[index].getName() << "\n";
+            // display the current hp for the user
+            std::cout << "Current Health Points: " << characters[index].getHp() << std::endl;
+        }
+        // Display the exit option
+        std::cout << (numCharacters + 1) << ". Back\n\n";
+        // declare a variable for user input, and get a user response
+        int menuChoice = positiveIntegerEntry("the character you want to adjust");
+
+        // Create and set a variable for the desired character's index position
+        int charChoice = menuChoice -= 1;
+
+        // Confirmation message
+        std::cout << "Adjusting " << characters[charChoice].getName() << "'s health points.\n";
+
+        // if statements for calling the editCharacter function
+        if (menuChoice >= 0 && menuChoice < numCharacters) {
+            // declare and get the hp change amount from the user
+            int change = integerEntry("change amount (e.g., -5 or 10)\nPositive values will heal, negative values will damage");
+            characters[charChoice].editHp(change);
+            std::cout << characters[charChoice].getName() << " now has " << characters[charChoice].getHp()
+                      << " health points.\n\n";
+        }
+        else if (menuChoice == numCharacters) {
+            // This will be the exit option
+            inMenu = false;
+            std::cout << "Returning to previous menu...\n\n";
+        }
+        else {
+            std::cout << "invalid character selection.\n\n";
         }
     }
-    std::cout << "Character not found.\n";
+
 }
 
 // Roll dice function
@@ -358,8 +477,7 @@ void rollDiceMenu() {
 }
 
 // Function that calls the public function rollinit() for all characters in Characters
-void initiativeRoll(Character characters[10], int numCharacters, std::vector<Character>&turnOrder)
-{
+void initiativeRoll(Character characters[10], int numCharacters, std::vector<Character>&turnOrder) {
     // Prepare the turnOrder vector for a fresh initiative roll
     turnOrder.clear();
     for (int index = 0; index < numCharacters; index++) {
@@ -369,9 +487,9 @@ void initiativeRoll(Character characters[10], int numCharacters, std::vector<Cha
         turnOrder.push_back(characters[index]);
     }
 }
-
-void setTurnOrder(std::vector<Character>&turnOrder)
-{
+// Sorts the Characters in the turn Order in Descending order,
+// based off the Initiative attribute
+void setTurnOrder(std::vector<Character>&turnOrder) {
     // Create a variable for the vector size
     int size = 0;
 
@@ -388,12 +506,9 @@ void setTurnOrder(std::vector<Character>&turnOrder)
     int maxElement;
     int index;
     
-    for (maxElement = initiative.size() - 1; maxElement > 0; maxElement--)
-    {
-        for (index = 0; index < maxElement; index++)
-        {
-            if (initiative[index] < initiative[index + 1])
-            {
+    for (maxElement = initiative.size() - 1; maxElement > 0; maxElement--) {
+        for (index = 0; index < maxElement; index++) {
+            if (initiative[index] < initiative[index + 1]) {
                 // swap position in reference vector
                 swapInt(initiative[index], initiative[index + 1]);
 
@@ -405,37 +520,32 @@ void setTurnOrder(std::vector<Character>&turnOrder)
 }
 
 // This function simply swaps to reference variables
-void swapInt(int &a, int &b)
-{
+void swapInt(int &a, int &b) {
     int temp = a;
     a = b;
     b = temp;
 }
 
-// This function swaps two Character objects
-void swapChar(Character &charA, Character &charB)
-{
+// This function swaps two iterations of the Character class
+void swapChar(Character &charA, Character &charB) {
     Character tempChar = charA;
     charA = charB;
     charB = tempChar;
 }
-
-void displayTurnOrder(std::vector<Character> turnOrder)
-{
+// Displays the names of the characters stored in the turnOrder vector
+void displayTurnOrder(std::vector<Character> turnOrder) {
     std::cout << "\n****************\n"
                 << "***Turn Order***\n"
                 << "****************\n\n";
     int turn = 1;   // Create a variable to track the turn
-    for (Character character : turnOrder)
-    {
+    for (Character character : turnOrder) {
         std::cout << turn << ". " << character.getName() << "|  Roll: "<< character.getInitiative() << "\n";
         turn++;
     }
 }
 
 // This function validates input for integers equal to or greater than 0
-int positiveIntegerEntry(std::string item)
-{
+int positiveIntegerEntry(std::string item) {
     // create variable to hold input
     int entry;
     // set flag for validation loop
@@ -443,23 +553,25 @@ int positiveIntegerEntry(std::string item)
     // enter validation loop
     while(!valid) {
         // prompt user for input
-        std::cout << "enter a positive integer for "<< item << ": ";
+        std::cout << "Enter a positive integer for "<< item << ": ";
         std::cin >> entry;
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(20, '\n');
+            std::cout << "Invalid entry.\n\n";
         }
-        else if(entry > 0 || entry == 0) {
-            std::cout << item << " set to " << entry << ".\n";
+        else if(entry >= 0) {
             valid = true;
+        }
+        else {
+            std::cout << "Invalid entry.\n\n";
         }
     }
     return entry;
 }
 
 // This function validates input for simple yes or no questions
-char yesOrNoEntry(std::string question)
-{
+char yesOrNoEntry(std::string question) {
     // create variable to store the response
     char response;
     // create flag for validation loop
@@ -481,6 +593,9 @@ char yesOrNoEntry(std::string question)
             response = 'N';
             valid = true;
         }
+        else {
+            std::cout << "Invalid entry.\n\n";
+        }
     }
     return response;
 }
@@ -498,6 +613,7 @@ int integerEntry(std::string item) {
         if (std::cin.fail()) { // if the input causes cin.fail() to return true
             std::cin.clear();
             std::cin.ignore(20,'\n');
+            std::cout << "Invalid entry.\n\n";
         }
         else {
             valid = true;
