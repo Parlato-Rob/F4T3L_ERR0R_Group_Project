@@ -18,7 +18,7 @@ void viewCharacters(Character arr[10], int, std::string);
 void viewParty(Character arr[10], int, std::string);
 void viewEnemies(Character arr[10], int, std::string);
 void editCharMenu(Character arr[10], int);
-void editHP(Character arr[10], int);
+void editHp(Character arr[10], int);
 int rollDice(int, int, int);
 void rollDiceMenu();
 void initiativeRoll(Character arr[10], int, std::vector<Character> &);
@@ -29,8 +29,7 @@ void swapChar(Character &, Character &);
 //************************************************************************* 
 //* Character class definition block                                      *
 //************************************************************************* 
-class Character
-{
+class Character {
     private:
         std::string name;
         int hp;
@@ -43,7 +42,7 @@ class Character
         void createCharacter();     // Sets the attributes for a Character type object, should be called on creation
         void rollInit();            // Sets the initiative value to a number returned by the rollDice() function    
         void displayStats();
-        void editHp(int);         // This has been structured to work with the existing editHp function
+        void modifyHp(int);         // This has been structured to work with the existing editHp function
         void applyDamage(int);      // Accepts an integer as a damage argument, applied damage = Damage - AC.
         // The following functions are for editing characters
         void editCharacter();
@@ -62,41 +61,37 @@ class Character
 };
 
 // This will be ran when creating a new character
-void Character::createCharacter()
-{
+void Character::createCharacter() {
     std::cout << "Enter character name: ";
     std::cin >> name;
-    hp = positiveIntegerEntry("Character Health Points (HP)");
-    ac = positiveIntegerEntry("Character Armour Class (AC)");
-    initModifier = integerEntry("initiative modifier");
+    hp = positiveIntegerEntry("Character Health Points(HP)");
+    ac = positiveIntegerEntry("Character Armor Class(AC)");
+    initModifier = integerEntry("Initiative Modifier");
     // Preroll initiative value for the first turn
     rollInit();
     // Determine the characters Enemy and Party status
     setFlags();
 }
 // This function Rolls a value for the initiative attribute
-void Character::rollInit()
-{
+void Character::rollInit() {
     // This turned out much simpler than expected,
     // the rollDice function just needs the relavent values.
     initiative = rollDice(1, 20, initModifier);
 }
 // This function displays the Character's attributes
-void Character::displayStats()
-{
+void Character::displayStats() {
 std::cout << "------------------------------------------------------------------\n";
     std::cout << "Name: " << std::left << std::setw(15) << name
                   << " | HP: " << hp
                   << " | AC: " << ac
                   << " | Party Member:" << isPartyMem
                   << " | Enemy:" << isEnemy << "\n"
-                  << "Init Adjust:" << std::setw(9) << initModifier
+                  << "Initiative Modifier:" << std::setw(10) << initModifier
                   << " | Initiative Roll: " << initiative << "\n"
                   << "------------------------------------------------------------------\n";
 }
 // This function adds a postive value to a character's hp
-void Character::editHp(int change)
-{
+void Character::modifyHp(int change) {
     hp += change;
     // check for negative hp values
     if (hp < 0) {
@@ -104,8 +99,7 @@ void Character::editHp(int change)
     }
 }
 // This function subtracts a positive value from character hp
-void Character::applyDamage(int damage)
-{
+void Character::applyDamage(int damage) {
     // Check for negative values
     if (damage < 0) {
         // set applied damage to 0
@@ -118,9 +112,13 @@ void Character::applyDamage(int damage)
     if (hp < 0)
         hp = 0;
 }
+
+//**********************************************************
+// Functions for editing Characters                        *
+//**********************************************************
+
 // This function allows the user to edit a character
-void Character::editCharacter()
-{
+void Character::editCharacter() {
     // Create a boolean variable for loop control
     bool inMenu = true;
 
@@ -164,36 +162,31 @@ void Character::editCharacter()
     }
 }
 // This function will allow you to change the character name
-void Character::setName()
-{
+void Character::setName() {
     // Create a variable for the characters new name.
     std::cout << "Enter a new name for " << name << ": ";
     std::cin >> name;
     std::cout << "This Character is now " << name << ".\n";
 }
 // This function sets the HP value
-void Character::setHp()
-{
+void Character::setHp() {
     // Calls the positiveIntegerEntry function to get an integer from the user
     hp = positiveIntegerEntry("Character HP");
     std::cout << name << "'s HP set to " << hp << ".\n";
 }
 // This function simply modifies ac
-void Character::setAc() 
-{
+void Character::setAc() {
     // Calls the integerEntry function to get an integer from the user.
     ac = integerEntry("Character Armor Class");
     std::cout << name << "'s Armor Class set to " << ac << ".\n";
 }
 // This function sets the Initiative mod
-void Character::setInitMod()
-{
+void Character::setInitMod() {
     initModifier = integerEntry("Initiative Modifier");
     std::cout << name << "'s Initiative Modifier set to " << initModifier << ".\n";
 }
 // Sets the Party and Enemy flag status
-void Character::setFlags()
-{
+void Character::setFlags() {
     // Determine if the character is an enemy
     char enemyStatus = yesOrNoEntry("Is this character an enemy?\n");
     if (enemyStatus == 'Y') {   //yesOrNoEntry returns 'Y' if the user entered 'y'
@@ -209,7 +202,11 @@ void Character::setFlags()
     isPartyMem = partyStatus;
     }
 }
-//******This section contains the getfunctions******
+
+//**********************************************************
+// Functions for returning character attributes            *
+//**********************************************************
+
 // simply returns the characters name for display purposes
 std::string Character::getName() {
     return name;
@@ -236,10 +233,8 @@ char Character::getPartyFlag() {
     return isPartyMem;
 }
 //**********************************************************
-// End of Character Class definition                       *
+// Main Function                                           *
 //**********************************************************
-
-// Main menu loop
 int main() {
     srand(static_cast<unsigned int>(time(0)));  // Random seed
     const int MAX_CHARACTERS = 10;
@@ -271,7 +266,7 @@ int main() {
             // call the editCharacterMenu function to bring up the character menu
             editCharMenu(characters, numCharacters);
         } else if (choice == 4) {
-            editHP(characters, numCharacters);
+            editHp(characters, numCharacters);
         } else if (choice == 5) {
             rollDiceMenu();
         } else if (choice == 6) {
@@ -288,6 +283,90 @@ int main() {
 
     return 0;
 }
+//**********************************************************
+// Input Validation Functions                              *
+//**********************************************************
+
+// This function validates input for integers equal to or greater than 0
+int positiveIntegerEntry(std::string item) {
+    // create variable to hold input
+    int entry;
+    // set flag for validation loop
+    bool valid = false;
+    // enter validation loop
+    while(!valid) {
+        // prompt user for input
+        std::cout << "Enter a positive integer for "<< item << ": ";
+        std::cin >> entry;
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(20, '\n');
+            std::cout << "Invalid entry.\n\n";
+        }
+        else if(entry >= 0) {
+            valid = true;
+        }
+        else {
+            std::cout << "Invalid entry.\n\n";
+        }
+    }
+    return entry;
+}
+
+// This function validates input for simple yes or no questions
+char yesOrNoEntry(std::string question) {
+    // create variable to store the response
+    char response;
+    // create flag for validation loop
+    bool valid = false;
+    // display the question
+    std::cout << question;
+    // enter validation loop
+    while (!valid) {
+        // prompt user
+        std::cout << "Enter Y for yes or N for no: ";
+        std::cin >> response;
+        if (response == 'y' || response == 'Y') {
+            // standardize yes response
+            response = 'Y';
+            valid = true;
+        }
+        else if (response == 'n' || response == 'N') {
+            // standardize no response
+            response = 'N';
+            valid = true;
+        }
+        else {
+            std::cout << "Invalid entry.\n\n";
+        }
+    }
+    return response;
+}
+// This function validates input for any integer value
+int integerEntry(std::string item) {
+    // create a variable to store input
+    int entry;
+    // create a flag for the validation loop
+    bool valid = false;
+    // enter validation loop
+    while (!valid) {
+        // prompt the user
+        std::cout << "Enter an integer for the " << item << ": ";
+        std::cin >> entry;
+        if (std::cin.fail()) { // if the input causes cin.fail() to return true
+            std::cin.clear();
+            std::cin.ignore(20,'\n');
+            std::cout << "Invalid entry.\n\n";
+        }
+        else {
+            valid = true;
+        }
+    }
+    return entry;
+}
+//**********************************************************
+// Function Definitions                                    *
+//**********************************************************
 // Function to add a new character
 int addCharacter(Character characters[10], int const MAX_CHARACTERS, int numCharacters) {
     if (numCharacters < MAX_CHARACTERS) {
@@ -410,7 +489,7 @@ void editCharMenu(Character characters[10], int numCharacters) {
 }
 
 // Function to edit HP of a character
-void editHP(Character characters[10], int numCharacters) {
+void editHp(Character characters[10], int numCharacters) {
     // create a boolean variable for menu status
     bool inMenu = true;
     // enter loop
@@ -436,7 +515,7 @@ void editHP(Character characters[10], int numCharacters) {
         if (menuChoice >= 0 && menuChoice < numCharacters) {
             // declare and get the hp change amount from the user
             int change = integerEntry("change amount (e.g., -5 or 10)\nPositive values will heal, negative values will damage");
-            characters[charChoice].editHp(change);
+            characters[charChoice].modifyHp(change);
             std::cout << characters[charChoice].getName() << " now has " << characters[charChoice].getHp()
                       << " health points.\n\n";
         }
@@ -542,82 +621,4 @@ void displayTurnOrder(std::vector<Character> turnOrder) {
         std::cout << turn << ". " << character.getName() << "|  Roll: "<< character.getInitiative() << "\n";
         turn++;
     }
-}
-
-// This function validates input for integers equal to or greater than 0
-int positiveIntegerEntry(std::string item) {
-    // create variable to hold input
-    int entry;
-    // set flag for validation loop
-    bool valid = false;
-    // enter validation loop
-    while(!valid) {
-        // prompt user for input
-        std::cout << "Enter a positive integer for "<< item << ": ";
-        std::cin >> entry;
-        if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(20, '\n');
-            std::cout << "Invalid entry.\n\n";
-        }
-        else if(entry >= 0) {
-            valid = true;
-        }
-        else {
-            std::cout << "Invalid entry.\n\n";
-        }
-    }
-    return entry;
-}
-
-// This function validates input for simple yes or no questions
-char yesOrNoEntry(std::string question) {
-    // create variable to store the response
-    char response;
-    // create flag for validation loop
-    bool valid = false;
-    // display the question
-    std::cout << question;
-    // enter validation loop
-    while (!valid) {
-        // prompt user
-        std::cout << "Enter Y for yes or N for no: ";
-        std::cin >> response;
-        if (response == 'y' || response == 'Y') {
-            // standardize yes response
-            response = 'Y';
-            valid = true;
-        }
-        else if (response == 'n' || response == 'N') {
-            // standardize no response
-            response = 'N';
-            valid = true;
-        }
-        else {
-            std::cout << "Invalid entry.\n\n";
-        }
-    }
-    return response;
-}
-// This function validates input for any integer value
-int integerEntry(std::string item) {
-    // create a variable to store input
-    int entry;
-    // create a flag for the validation loop
-    bool valid = false;
-    // enter validation loop
-    while (!valid) {
-        // prompt the user
-        std::cout << "Enter an integer for the " << item << ": ";
-        std::cin >> entry;
-        if (std::cin.fail()) { // if the input causes cin.fail() to return true
-            std::cin.clear();
-            std::cin.ignore(20,'\n');
-            std::cout << "Invalid entry.\n\n";
-        }
-        else {
-            valid = true;
-        }
-    }
-    return entry;
 }
