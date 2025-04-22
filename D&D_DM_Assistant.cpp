@@ -66,8 +66,8 @@ void Character::createCharacter()
 {
     std::cout << "Enter character name: ";
     std::cin >> name;
-    hp = positiveIntegerEntry("Character HP");
-    ac = positiveIntegerEntry("Character AC");
+    hp = positiveIntegerEntry("Character Health Points (HP)");
+    ac = positiveIntegerEntry("Character Armour Class (AC)");
     initModifier = integerEntry("initiative modifier");
     // Preroll initiative value for the first turn
     rollInit();
