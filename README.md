@@ -4,16 +4,19 @@ in the CIS252(C++ programing) course at Calhoun Community College,
 during the spring semester of 2025.
 
 *D&D Managment Program*
+
 This is a c++ terminal based program of Dungeons & Dragons (D&D).
 Pretty similar to a table top game.
 It allows for the user to Create, view, edit and manage characters within your party or enemy group
 
 *NOTES*
+
 -C++ program
 -General Knowlendge of how Dungeons & Dragons works
 -designed as interaction based program
 
 *FEATURES*
+
 -Create Character
 -view party
 -Edit characters (HP) Health points
@@ -21,12 +24,14 @@ It allows for the user to Create, view, edit and manage characters within your p
 Menu Fuctions
 
 *INPUT VALIDATION*
+
 - yes or no entry validation
 - integer validations
 These are the vaildation fuctions
 
 
 *CHARACTER MANAGMENT*
+
 -Add character
 -view character
 -view party
