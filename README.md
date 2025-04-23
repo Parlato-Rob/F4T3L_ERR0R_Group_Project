@@ -40,6 +40,12 @@ These are the vaildation fuctions
 -edit character menu
 
 
-
+*EXAMPLE OF THE WORKFLOW*
+1. start game ( starting the program )
+2. add character ( add character and secify attributes such as, name, health, armour, and class. )
+3. edit character ( modify characters stats )
+4. roll dice ( roll dice with secified number of sides and moifiers )
+5. iniative roll ( Roll iniative for all characters )
+6. 
 
 
