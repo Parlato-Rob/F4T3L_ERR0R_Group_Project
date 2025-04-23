@@ -15,7 +15,7 @@ It allows for the user to Create, view, edit and manage characters within your p
 -General Knowlendge of how Dungeons & Dragons works
 -designed as interaction based program
 
-*FEATURES*
+*MENU FUNCTIONS*
 
 -Create Character
 -view party
@@ -41,6 +41,7 @@ These are the vaildation fuctions
 
 
 *EXAMPLE OF THE WORKFLOW*
+
 1. start game ( starting the program )
 2. add character ( add character and secify attributes such as, name, health, armour, and class. )
 3. edit character ( modify characters stats )
