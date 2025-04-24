@@ -163,7 +163,6 @@ void Character::editCharacter() {
 }
 // This function will allow you to change the character name
 void Character::setName() {
-    // Create a variable for the characters new name.
     std::cout << "Enter a new name for " << name << ": ";
     std::cin >> name;
     std::cout << "This Character is now " << name << ".\n";
@@ -171,7 +170,7 @@ void Character::setName() {
 // This function sets the HP value
 void Character::setHp() {
     // Calls the positiveIntegerEntry function to get an integer from the user
-    hp = positiveIntegerEntry("Character HP");
+    hp = positiveIntegerEntry("Character Health Points");
     std::cout << name << "'s HP set to " << hp << ".\n";
 }
 // This function simply modifies ac
@@ -188,18 +187,17 @@ void Character::setInitMod() {
 // Sets the Party and Enemy flag status
 void Character::setFlags() {
     // Determine if the character is an enemy
-    char enemyStatus = yesOrNoEntry("Is this character an enemy?\n");
-    if (enemyStatus == 'Y') {   //yesOrNoEntry returns 'Y' if the user entered 'y'
+    isEnemy = yesOrNoEntry("Is this character an enemy?\n");
+    if (isEnemy == 'Y') {   //yesOrNoEntry returns 'Y' if the user entered 'y'
         std::cout << name << " has been set as an enemy.\n";
+        isPartyMem = 'N';
     }
-    isEnemy = enemyStatus;
     // Determine if the character is a party member
-    if (enemyStatus =='N') {
-        char partyStatus = yesOrNoEntry("Is this character a party member?\n");
-        if (partyStatus == 'Y') {   //yesOrNoEntry returns 'N' if the user entered 'n'
+    if (isEnemy =='N') {
+        isPartyMem = yesOrNoEntry("Is this character a party member?\n");
+        if (isPartyMem == 'Y') {   //yesOrNoEntry returns 'N' if the user entered 'n'
             std::cout << name << " has been set as a party member.\n";
         }
-    isPartyMem = partyStatus;
     }
 }
 
@@ -250,13 +248,11 @@ int main() {
     int choice;
     while (running) {
         std::cout << "\n--- D&D DM Tracker ---\n";
-        std::cout << "1. Add Character\n2. View Character Menu\n3. Edit Character Menu\n4. Edit HP\n5. Roll Dice\n"
+        std::cout << "1. Add Character\n2. View Character Menu\n3. Edit Character Menu\n4. Edit Health Points\n5. Roll Dice\n"
                   << "6. Initiative Roll\n7. Exit\n\n";
         choice = integerEntry("menu option");
 
         if (choice == 1) {
-            // create a variable to hold the current number of characters.
-            int currentCharacters = numCharacters;
             // This looks odd, but now that numCharacters is local, we need a way of incrementing it.
             numCharacters = addCharacter(characters, MAX_CHARACTERS, numCharacters);
         } else if (choice == 2) {
@@ -370,11 +366,13 @@ int integerEntry(std::string item) {
 // Function to add a new character
 int addCharacter(Character characters[10], int const MAX_CHARACTERS, int numCharacters) {
     if (numCharacters < MAX_CHARACTERS) {
-        Character c;
-        c.createCharacter();
-
-        characters[numCharacters++] = c;
-        std::cout << c.getName() << " created!\n";
+        // Create a new instance of the Character class
+        Character newCharacter;
+        // Call the newCharacter's createCharacter function
+        newCharacter.createCharacter();
+        // Add the new character to the array and increment numCharacters
+        characters[numCharacters++] = newCharacter;
+        std::cout << newCharacter.getName() << " created!\n";
     } else {
         std::cout << "Character limit reached.\n";
     }
@@ -422,22 +420,22 @@ void viewCharMenu(Character characters[10], int numCharacters)
 void viewCharacters(Character charArray[10], int numCharacters, std::string header) {
     // display header received during function call
     std::cout << header << std::endl;
-    for (int i = 0; i < numCharacters; i++) {
+    for (int index = 0; index < numCharacters; index++) {
         // Display character stats by calling the displayStats()
         // function for each character in the array.
-        charArray[i].displayStats();
+        charArray[index].displayStats();
     }
 }
 
 void viewParty(Character charArray[10], int numCharacters, std::string header) {
     // display header received during function call
     std::cout << header << std::endl;
-    for (int i = 0; i < numCharacters; i++) {
+    for (int index = 0; index < numCharacters; index++) {
         // Display character stats by calling the displayStats()
         // function for each character in the array.
-        if (charArray[i].getPartyFlag() == 'Y') {
+        if (charArray[index].getPartyFlag() == 'Y') {
             // If the get party flag function returns 'Y' for yes
-            charArray[i].displayStats();
+            charArray[index].displayStats();
         }
     }
 }
@@ -445,12 +443,12 @@ void viewParty(Character charArray[10], int numCharacters, std::string header) {
 void viewEnemies(Character charArray[10], int numCharacters, std::string header) {
     // display header received during function call
     std::cout << header << std::endl;
-    for (int i = 0; i < numCharacters; i++) {
+    for (int index = 0; index < numCharacters; index++) {
         // Display character stats by calling the displayStats()
         // function for each character in the array.
-        if (charArray[i].getEnemyFlag() == 'Y') {
+        if (charArray[index].getEnemyFlag() == 'Y') {
             // If the get enemy flag function returns 'Y' for yes
-            charArray[i].displayStats();
+            charArray[index].displayStats();
         }
     }
 }
@@ -466,8 +464,8 @@ void editCharMenu(Character characters[10], int numCharacters) {
         }
         // Display the exit option
         std::cout << (numCharacters + 1) << ". Back\n\n";
-        // declare a variable for user input, and get a user response
 
+        // declare a variable for user input, and get a user response
         int menuChoice = positiveIntegerEntry("character you want to edit");
 
         // Create and set a variable for the desired character's index position
@@ -511,7 +509,7 @@ void editHp(Character characters[10], int numCharacters) {
         // Confirmation message
         std::cout << "Adjusting " << characters[charChoice].getName() << "'s health points.\n";
 
-        // if statements for calling the editCharacter function
+        // If statements for calling the editCharacter function
         if (menuChoice >= 0 && menuChoice < numCharacters) {
             // declare and get the hp change amount from the user
             int change = integerEntry("change amount (e.g., -5 or 10)\nPositive values will heal, negative values will damage");
@@ -534,7 +532,7 @@ void editHp(Character characters[10], int numCharacters) {
 // Roll dice function
 int rollDice(int numDice, int diceSides, int modifier = 0) {
     int total = 0;
-    for (int i = 0; i < numDice; ++i) {
+    for (int index = 0; index < numDice; ++index) {
         total += rand() % diceSides + 1;
     }
     return total + modifier;
