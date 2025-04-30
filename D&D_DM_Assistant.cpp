@@ -276,7 +276,6 @@ int main() {
             std::cout << "Invalid option.\n";
         }
     }
-
     return 0;
 }
 //**********************************************************
@@ -530,7 +529,7 @@ void editHp(Character characters[10], int numCharacters) {
 }
 
 // Roll dice function
-int rollDice(int numDice, int diceSides, int modifier = 0) {
+int rollDice(int numDice, int diceSides, int modifier) {
     int total = 0;
     for (int index = 0; index < numDice; ++index) {
         total += rand() % diceSides + 1;
